@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      image-latest-url: ${{ steps.publish.outputs.image-latest-url }}
       image-digest-url: ${{ steps.publish.outputs.image-digest-url }}
 
     permissions:
@@ -75,4 +74,4 @@ jobs:
       uses: optivem/summarize-commit-stage-action@v1
       with:
         stage-result: ${{ needs.build.result }}
-        success-artifact-url: ${{ needs.build.outputs.image-latest-url }}
+        success-artifact-url: ${{ needs.build.outputs.image-digest-url }}
