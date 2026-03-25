@@ -16,3 +16,5 @@ This project is released under [The Unlicense](http://unlicense.org) — a publi
 
 - [Valentina Jemuović](https://github.com/valentinajemuovic)
 - [Jelena Cupać](https://github.com/jcupac)
+
+<!-- TODO: VJ: DELETE -->
