@@ -17,7 +17,6 @@ on:
 
 concurrency:
   group: qa-signoff
-  cancel-in-progress: true
 
 jobs:
   check-version-exists:

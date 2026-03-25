@@ -10,7 +10,6 @@ on:
 
 concurrency:
   group: prod-stage
-  cancel-in-progress: true
 
 jobs:
   generate-production-version:

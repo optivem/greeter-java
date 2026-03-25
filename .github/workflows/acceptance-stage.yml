@@ -13,7 +13,6 @@ on:
 
 concurrency:
   group: acceptance-stage
-  cancel-in-progress: true
 
 jobs:
 

@@ -10,7 +10,6 @@ on:
 
 concurrency:
   group: qa-stage
-  cancel-in-progress: true
 
 jobs:
   check-release-exists:

@@ -15,7 +15,6 @@ on:
 
 concurrency:
   group: commit-stage-monolith-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
