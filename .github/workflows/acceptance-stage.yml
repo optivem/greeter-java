@@ -4,12 +4,6 @@ on:
   schedule:
     - cron: '*/30 * * * *'  # Run every 30 minutes
   workflow_dispatch:
-    inputs:
-      force_run:
-        description: 'Force run (even if no new images)'
-        required: false
-        default: false
-        type: boolean
 
 concurrency:
   group: acceptance-stage
@@ -53,7 +47,6 @@ jobs:
         uses: optivem/should-run-acceptance-stage-action@v1.0.12-beta
         with:
           latest-image-timestamp: ${{ needs.find-latest-images.outputs.latest-image-timestamp }}
-          force-run: ${{ inputs.force_run == true }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
