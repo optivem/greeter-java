@@ -1,4 +1,4 @@
-package com.optivem.atddaccelerator.template.systemtest.smoketests;
+package com.optivem.greeter.systemtest.smoketests;
 
 import com.microsoft.playwright.*;
 import org.junit.jupiter.api.*;
@@ -12,7 +12,7 @@ public class UiSmokeTest {
     void home_shouldReturnHtmlContent() {
         // DISCLAIMER: This is an example of a badly written test
         // which unfortunately simulates real-life software test projects.
-        // This is the starting point for our ATDD Accelerator exercises.
+        // This is the starting point for our Greeter exercises.
 
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch();

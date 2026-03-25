@@ -1,4 +1,4 @@
-package com.optivem.atddaccelerator.template.systemtest.e2etests;
+package com.optivem.greeter.systemtest.e2etests;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +15,7 @@ class ApiE2eTest {
     void getTodos_shouldReturnTodoWithExpectedFormat() throws Exception {
         // DISCLAIMER: This is an example of a badly written test
         // which unfortunately simulates real-life software test projects.
-        // This is the starting point for our ATDD Accelerator exercises.
+        // This is the starting point for our Greeter exercises.
 
         // Arrange
         HttpClient client = HttpClient.newHttpClient();

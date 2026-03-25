@@ -1,4 +1,4 @@
-package com.optivem.atddaccelerator.template.monolith.controllers.api;
+package com.optivem.greeter.monolith.controllers.api;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

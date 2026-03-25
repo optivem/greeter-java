@@ -1,4 +1,4 @@
-package com.optivem.atddaccelerator.template.systemtest.smoketests;
+package com.optivem.greeter.systemtest.smoketests;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,7 +14,7 @@ class ApiSmokeTest {
     void echo_shouldReturn200OK() throws Exception {
         // DISCLAIMER: This is an example of a badly written test
         // which unfortunately simulates real-life software test projects.
-        // This is the starting point for our ATDD Accelerator exercises.
+        // This is the starting point for our Greeter exercises.
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()

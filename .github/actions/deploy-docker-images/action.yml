@@ -68,7 +68,7 @@ runs:
       working-directory: system-test
         
     - name: Run Smoke Tests
-      run: ./gradlew test --tests com.optivem.atddaccelerator.template.systemtest.smoketests.*
+      run: ./gradlew test --tests com.optivem.greeter.systemtest.smoketests.*
       shell: bash
       working-directory: system-test
 

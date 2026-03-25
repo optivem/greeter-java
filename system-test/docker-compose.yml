@@ -1,6 +1,6 @@
 services:
 
   monolith:
-    image: ghcr.io/optivem/atdd-accelerator-template-java/monolith:latest
+    image: ghcr.io/optivem/greeter-java/monolith:latest
     ports:
       - "8080:8080"

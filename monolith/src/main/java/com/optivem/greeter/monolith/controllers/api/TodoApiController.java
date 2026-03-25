@@ -1,6 +1,6 @@
-package com.optivem.atddaccelerator.template.monolith.controllers.api;
+package com.optivem.greeter.monolith.controllers.api;
 
-import com.optivem.atddaccelerator.template.monolith.models.Todo;
+import com.optivem.greeter.monolith.models.Todo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
