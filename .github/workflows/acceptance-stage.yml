@@ -51,7 +51,7 @@ jobs:
 
       - name: Should Run Acceptance Stage
         id: check
-        uses: optivem/should-run-acceptance-stage-action@v1
+        uses: optivem/should-run-acceptance-stage-action@v1.0.12-beta
         with:
           latest-image-timestamp: ${{ needs.find-latest-images.outputs.latest-image-timestamp }}
           force-run: ${{ inputs.force_run == true }}
