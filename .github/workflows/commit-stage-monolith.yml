@@ -32,17 +32,24 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Setup Java
+    - name: Setup Runtime
       uses: ./.github/actions/setup-java
       with:
         java-version: 21
         working-directory: monolith
 
-    - name: Build with Gradle Wrapper
+    - name: Compile Code
       run: ./gradlew build
       working-directory: monolith
 
-    - name: Publish Docker Image
+    # - name: Run Unit Tests
+    # - name: Run Narrow Integration Tests
+    # - name: Run Component Tests
+    # - name: Run Contract Tests
+    # - name: Run Linter
+    # - name: Run Code Analysis
+
+    - name: Build and Push Artifact
       id: publish
       uses: optivem/publish-docker-image-action@v1
       with:
