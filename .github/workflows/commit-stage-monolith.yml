@@ -33,18 +33,10 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: ./.github/actions/setup-java
       with:
         java-version: 21
-        distribution: temurin
-
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-    
-    - name: Make Gradle Wrapper executable
-      run: chmod +x ./gradlew
-      shell: bash
-      working-directory: monolith
+        working-directory: monolith
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
