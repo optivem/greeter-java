@@ -58,7 +58,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Deploy Artifacts
+    - name: Deploy System (Acceptance Environment)
       id: deploy-system
       uses: optivem/actions/simulate-deployment@v1
       with:
@@ -102,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Summarize Acceptance Stage
+    - name: Summarize Stage
       uses: optivem/actions/summarize-system-stage@v1
       with:
         stage-name: 'Acceptance Stage'

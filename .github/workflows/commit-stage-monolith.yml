@@ -77,7 +77,7 @@ jobs:
 
     steps:
 
-    - name: Summarize Commit Stage
+    - name: Summarize Stage
       uses: optivem/actions/summarize-commit-stage@v1
       with:
         stage-result: ${{ needs.run.result }}

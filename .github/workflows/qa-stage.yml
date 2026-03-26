@@ -12,12 +12,14 @@ concurrency:
   group: qa-stage
 
 jobs:
-  check-release-exists:
+  check:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      image-urls: ${{ steps.resolve-images.outputs.image-urls }}
     steps:
-      - name: Check Version Release Exists
+      - name: Check RC Exists
         id: check-release
         uses: optivem/actions/check-release-exists@v1
         with:
@@ -25,14 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  resolve-docker-images:
-    needs: check-release-exists
-    if: needs.check-release-exists.result == 'success'
-    runs-on: ubuntu-latest
-    outputs:
-      image-urls: ${{ steps.resolve-images.outputs.image-urls }}
-    steps:
-      - name: Resolve Docker Images
+      - name: Resolve Artifacts
         id: resolve-images
         uses: optivem/actions/resolve-docker-images@v1
         with:
@@ -40,82 +35,51 @@ jobs:
           base-image-urls: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith
 
-  deployment:
-    needs: [check-release-exists, resolve-docker-images]
-    if: needs.resolve-docker-images.result == 'success'
+  run:
+    needs: check
+    if: needs.check.result == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.promote.outputs.version }}
+      image-urls: ${{ needs.check.outputs.image-urls }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy System
+      - name: Deploy System (QA Environment)
         id: deploy
         uses: optivem/actions/simulate-deployment@v1
         with:
           environment: qa
           version: ${{ inputs.version }}
-          image-urls: ${{ needs.resolve-docker-images.outputs.image-urls }}
+          image-urls: ${{ needs.check.outputs.image-urls }}
           system-url: 'http://localhost:8080/'
           working-directory: system-test
 
-  status-version:
-    needs: [deployment]
-    if: needs.deployment.result == 'success' # Only on successful deployment
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.determine-version.outputs.version }}
-      status: deployed
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Generate Status Version
-        id: determine-version
-        uses: optivem/actions/generate-status-version@v1
+      - name: Promote RC (QA Deployed)
+        id: promote
+        uses: optivem/actions/promote-rc-to-qa-deployed@v1
         with:
           version: ${{ inputs.version }}
-          environment: qa
-          status: deployed
-
-  deployment-release:
-    needs: [resolve-docker-images, status-version]
-    if: needs.status-version.result == 'success'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      release-url: ${{ steps.create-release.outputs.release-url }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Create Deployment Release
-        id: create-release
-        uses: optivem/actions/create-release@v1
-        with:
-          base-version: ${{ inputs.version }}
-          release-version: ${{ needs.status-version.outputs.version }}
-          environment: qa
-          status: ${{ needs.status-version.outputs.status }}
-          artifact-urls: ${{ (needs.resolve-docker-images.result == 'success' && needs.resolve-docker-images.outputs.image-urls) || '[]' }}
-          is-prerelease: true
+          artifact-urls: ${{ needs.check.outputs.image-urls }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   summary:
-    needs: [check-release-exists, resolve-docker-images, deployment, status-version, deployment-release]
-    if: always() # Run even if previous jobs fail
+    needs: [check, run]
+    if: always()
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-      
-    - name: Generate QA Deployment Stage Summary
+
+    - name: Summarize Stage
       uses: optivem/actions/summarize-system-stage@v1
       with:
         stage-name: 'QA Stage'
         environment: qa
-        stage-result: ${{ needs.deployment-release.result }}
-        success-version: ${{ needs.status-version.outputs.version }}
-        success-artifact-ids: ${{ needs.resolve-docker-images.outputs.image-urls }}
+        stage-result: ${{ needs.run.result }}
+        success-version: ${{ needs.run.outputs.version }}
+        success-artifact-ids: ${{ needs.run.outputs.image-urls }}

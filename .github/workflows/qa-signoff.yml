@@ -19,87 +19,71 @@ concurrency:
   group: qa-signoff
 
 jobs:
-  check-version-exists:
+  check:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
-      - name: Check Version Release Exists
+      - name: Check RC Exists
         uses: optivem/actions/check-release-exists@v1
         with:
           version: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  signoff-status-version:
-    needs: check-version-exists
-    if: needs.check-version-exists.result == 'success'
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.generate-version.outputs.version }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Generate Signoff Status Version
-        id: generate-version
-        uses: optivem/actions/generate-status-version@v1
-        with:
-          version: ${{ inputs.version }}
-          environment: qa
-          status: ${{ inputs.result }}
-
-  signoff-release:
-    needs: signoff-status-version
-    if: needs.signoff-status-version.result == 'success'
+  run:
+    needs: check
+    if: needs.check.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     outputs:
-      release-url: ${{ steps.create-release.outputs.release-url }}
+      version: ${{ steps.promote-approved.outputs.version || steps.promote-rejected.outputs.version }}
+      stage-result: ${{ steps.determine-result.outputs.stage-result }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Create Signoff Release
-        id: create-release
-        uses: optivem/actions/create-release@v1
+      - name: Determine Stage Result
+        id: determine-result
+        run: |
+          if [[ "${{ inputs.result }}" == "success" ]]; then
+            echo "stage-result=success" >> $GITHUB_OUTPUT
+          else
+            echo "stage-result=failure" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Promote RC (QA Approved)
+        id: promote-approved
+        if: inputs.result == 'success'
+        uses: optivem/actions/promote-rc-to-qa-approved@v1
         with:
-          base-version: ${{ inputs.version }}
-          release-version: ${{ needs.signoff-status-version.outputs.version }}
-          environment: qa
-          status: ${{ inputs.result }}
-          is-prerelease: true
+          version: ${{ inputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promote RC (QA Rejected)
+        id: promote-rejected
+        if: inputs.result == 'failure'
+        uses: optivem/actions/promote-rc-to-qa-rejected@v1
+        with:
+          version: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   summary:
-    needs: [check-version-exists, signoff-status-version, signoff-release]
-    if: always() # Run even if previous jobs fail
+    needs: [check, run]
+    if: always()
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-      
-    - name: Determine Stage Result
-      id: determine-result
-      run: |
-        if [[ "${{ needs.signoff-release.result }}" == "success" && "${{ inputs.result }}" == "success" ]]; then
-          echo "stage-result=success" >> $GITHUB_OUTPUT
-          echo "✅ Both workflow execution and QA testing were successful"
-        else
-          echo "stage-result=failure" >> $GITHUB_OUTPUT
-          echo "❌ Either workflow execution failed or QA testing failed"
-          echo "Workflow result: ${{ needs.signoff-release.result }}"
-          echo "QA test result: ${{ inputs.result }}"
-        fi
-      shell: bash
-      
-    - name: Generate QA Signoff Stage Summary
+
+    - name: Summarize Stage
       uses: optivem/actions/summarize-system-stage@v1
       with:
         stage-name: 'QA Signoff'
         environment: qa
-        stage-result: ${{ steps.determine-result.outputs.stage-result }}
-        success-version: ${{ needs.signoff-status-version.outputs.version }}
+        stage-result: ${{ needs.run.outputs.stage-result }}
+        success-version: ${{ needs.run.outputs.version }}
