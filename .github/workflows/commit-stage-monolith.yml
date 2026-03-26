@@ -17,7 +17,7 @@ concurrency:
   group: commit-stage-monolith-${{ github.ref }}
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
 
     outputs:
@@ -49,6 +49,7 @@ jobs:
     # - name: Run Code Analysis
 
     - name: Build Artifact
+      if: github.ref == 'refs/heads/main'
       id: build
       uses: optivem/actions/build-docker-image@v1
       with:
@@ -59,6 +60,7 @@ jobs:
         dockerfile: Dockerfile
 
     - name: Push Artifact
+      if: github.ref == 'refs/heads/main'
       id: push
       uses: optivem/actions/push-docker-image@v1
       with:
@@ -69,14 +71,14 @@ jobs:
         REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   summary:
-    needs: build
-    runs-on: ubuntu-latest
+    needs: run
     if: always()
+    runs-on: ubuntu-latest
 
     steps:
-      
+
     - name: Summarize Commit Stage
       uses: optivem/actions/summarize-commit-stage@v1
       with:
-        stage-result: ${{ needs.build.result }}
-        success-artifact-url: ${{ needs.build.outputs.image-digest-url }}
+        stage-result: ${{ needs.run.result }}
+        success-artifact-url: ${{ needs.run.outputs.image-digest-url }}

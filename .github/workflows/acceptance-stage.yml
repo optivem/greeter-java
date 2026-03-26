@@ -102,9 +102,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
     - name: Summarize Acceptance Stage
       uses: optivem/actions/summarize-system-stage@v1
       with:
