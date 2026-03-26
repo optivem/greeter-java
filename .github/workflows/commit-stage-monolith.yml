@@ -19,64 +19,70 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-
-    outputs:
-      image-digest-url: ${{ steps.push.outputs.image-digest-url }}
-
     permissions:
       contents: read
       packages: write
-
+    outputs:
+      image-digest-url: ${{ steps.push.outputs.image-digest-url }}
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Setup Runtime
-      uses: optivem/actions/setup-java-gradle@v1
-      with:
-        java-version: 21
+      - name: Setup Runtime
+        uses: optivem/actions/setup-java-gradle@v1
+        with:
+          java-version: 21
+          working-directory: monolith
+
+      - name: Compile Code
+        run: ./gradlew build
         working-directory: monolith
 
-    - name: Compile Code
-      run: ./gradlew build
-      working-directory: monolith
+      - name: Run Unit Tests
+        run: echo "Run Unit Tests"
 
-    # - name: Run Unit Tests
-    # - name: Run Narrow Integration Tests
-    # - name: Run Component Tests
-    # - name: Run Contract Tests
-    # - name: Run Linter
-    # - name: Run Code Analysis
+      - name: Run Narrow Integration Tests
+        run: echo "Run Narrow Integration Tests"
 
-    - name: Build Artifact
-      if: github.ref == 'refs/heads/main'
-      id: build
-      uses: optivem/actions/build-docker-image@v1
-      with:
-        working-directory: monolith
-        image-name: monolith
-        image-namespace: ${{ github.repository }}
-        commit-sha: ${{ github.sha }}
-        dockerfile: Dockerfile
+      - name: Run Component Tests
+        run: echo "Run Component Tests"
 
-    - name: Push Artifact
-      if: github.ref == 'refs/heads/main'
-      id: push
-      uses: optivem/actions/push-docker-image@v1
-      with:
-        image-sha-tag: ${{ steps.build.outputs.image-sha-tag }}
-        image-latest-url: ${{ steps.build.outputs.image-latest-url }}
-        registry-username: ${{ github.actor }}
-      env:
-        REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Contract Tests
+        run: echo "Run Contract Tests"
+
+      - name: Run Linter
+        run: echo "Run Linter"
+
+      - name: Run Code Analysis
+        run: echo "Run Code Analysis"
+
+      - name: Build Artifact
+        if: github.ref == 'refs/heads/main'
+        id: build
+        uses: optivem/actions/build-docker-image@v1
+        with:
+          working-directory: monolith
+          image-name: monolith
+          image-namespace: ${{ github.repository }}
+          commit-sha: ${{ github.sha }}
+          dockerfile: Dockerfile
+
+      - name: Push Artifact
+        if: github.ref == 'refs/heads/main'
+        id: push
+        uses: optivem/actions/push-docker-image@v1
+        with:
+          image-sha-tag: ${{ steps.build.outputs.image-sha-tag }}
+          image-latest-url: ${{ steps.build.outputs.image-latest-url }}
+          registry-username: ${{ github.actor }}
+        env:
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   summary:
-    needs: run
+    needs: [run]
     if: always()
     runs-on: ubuntu-latest
-
     steps:
-
     - name: Summarize Stage
       uses: optivem/actions/summarize-commit-stage@v1
       with:
