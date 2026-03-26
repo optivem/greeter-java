@@ -48,7 +48,7 @@ jobs:
     # - name: Run Linter
     # - name: Run Code Analysis
 
-    - name: Build Docker Image
+    - name: Build Artifact
       id: build
       uses: optivem/actions/build-docker-image@v1
       with:
@@ -58,7 +58,7 @@ jobs:
         commit-sha: ${{ github.sha }}
         dockerfile: Dockerfile
 
-    - name: Push Docker Image
+    - name: Push Artifact
       id: push
       uses: optivem/actions/push-docker-image@v1
       with:
@@ -75,7 +75,7 @@ jobs:
 
     steps:
       
-    - name: Commit Stage Summary
+    - name: Summarize Commit Stage
       uses: optivem/actions/summarize-commit-stage@v1
       with:
         stage-result: ${{ needs.build.result }}
