@@ -55,6 +55,8 @@ jobs:
           environment: qa
           version: ${{ inputs.version }}
           image-urls: ${{ needs.resolve-docker-images.outputs.image-urls }}
+          url: 'http://localhost:8080/'
+          working-directory: system-test
 
   status-version:
     needs: [deployment]

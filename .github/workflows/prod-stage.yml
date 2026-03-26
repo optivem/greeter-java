@@ -98,6 +98,8 @@ jobs:
           environment: production
           version: ${{ needs.generate-production-version.outputs.production-version }}
           image-urls: ${{ needs.tag-docker-images.outputs.image-urls }}
+          url: 'http://localhost:8080/'
+          working-directory: system-test
 
   production-release:
     needs: [generate-production-version, tag-docker-images, deploy-docker-images]

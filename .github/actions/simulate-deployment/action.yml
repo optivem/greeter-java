@@ -10,6 +10,12 @@ inputs:
   image-urls:
     description: 'Docker image URLs to deploy (JSON array format)'
     required: true
+  url:
+    description: 'Health check URL to wait for (e.g., http://localhost:8080/)'
+    required: true
+  working-directory:
+    description: 'Working directory containing the Docker Compose file'
+    required: true
 
 runs:
   using: 'composite'
@@ -43,12 +49,12 @@ runs:
         echo "🐳 Starting Docker Compose for simulated deployment..."
         docker compose up -d
       shell: bash
-      working-directory: system-test
+      working-directory: ${{ inputs.working-directory }}
 
     - name: Wait for Application to be Ready
       uses: optivem/actions/wait-for-docker-compose@v1
       with:
-        url: 'http://localhost:8080/'
+        url: ${{ inputs.url }}
         max-attempts: '30'
         wait-seconds: '10'
-        working-directory: system-test
+        working-directory: ${{ inputs.working-directory }}
