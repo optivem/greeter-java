@@ -25,7 +25,7 @@ jobs:
 
     - name: Resolve Latest Docker Digests
       id: get-digest
-      uses: optivem/find-latest-docker-images-action@v1
+      uses: optivem/actions/find-latest-docker-images@v1
       with:
         image-urls: |
           ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith:latest
@@ -44,7 +44,7 @@ jobs:
 
       - name: Should Run Acceptance Stage
         id: check
-        uses: optivem/should-run-acceptance-stage-action@v1.0.12-beta
+        uses: optivem/actions/should-run-acceptance-stage@v1
         with:
           latest-image-timestamp: ${{ needs.find-latest-images.outputs.latest-image-timestamp }}
         env:
@@ -115,11 +115,11 @@ jobs:
 
     - name: Generate Prerelease Version
       id: generate-version
-      uses: optivem/generate-prerelease-version-action@v1
+      uses: optivem/actions/generate-prerelease-version@v1
 
     - name: Tag Docker Images for Prerelease
       id: tag-images
-      uses: optivem/tag-docker-images-action@v1
+      uses: optivem/actions/tag-docker-images@v1
       with:
         image-urls: ${{ needs.find-latest-images.outputs.image-digest-urls }}
         tag: ${{ steps.generate-version.outputs.version }}
@@ -128,7 +128,7 @@ jobs:
 
     - name: Create Prerelease
       id: create-release
-      uses: optivem/create-release-action@v1
+      uses: optivem/actions/create-release@v1
       with:
         base-version: latest
         release-version: ${{ steps.generate-version.outputs.version }}
@@ -149,7 +149,7 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Acceptance Stage Summary
-      uses: optivem/summarize-system-stage-action@v1
+      uses: optivem/actions/summarize-system-stage@v1
       with:
         stage-name: 'Acceptance Stage'
         environment: acceptance

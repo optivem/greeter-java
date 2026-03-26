@@ -46,7 +46,7 @@ runs:
       working-directory: system-test
 
     - name: Wait for Application to be Ready
-      uses: optivem/wait-for-docker-compose-action@v1
+      uses: optivem/actions/wait-for-docker-compose@v1
       with:
         url: 'http://localhost:8080/'
         max-attempts: '30'
