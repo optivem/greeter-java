@@ -12,8 +12,8 @@ on:
         required: true
         type: choice
         options:
-          - success
-          - failure
+          - approved
+          - rejected
 
 concurrency:
   group: qa-signoff
@@ -47,7 +47,7 @@ jobs:
       - name: Determine Stage Result
         id: determine-result
         run: |
-          if [[ "${{ inputs.result }}" == "success" ]]; then
+          if [[ "${{ inputs.result }}" == "approved" ]]; then
             echo "stage-result=success" >> $GITHUB_OUTPUT
           else
             echo "stage-result=failure" >> $GITHUB_OUTPUT
@@ -56,7 +56,7 @@ jobs:
 
       - name: Promote RC (QA Approved)
         id: promote-approved
-        if: inputs.result == 'success'
+        if: inputs.result == 'approved'
         uses: optivem/actions/promote-rc-to-qa-approved@v1
         with:
           version: ${{ inputs.version }}
@@ -65,7 +65,7 @@ jobs:
 
       - name: Promote RC (QA Rejected)
         id: promote-rejected
-        if: inputs.result == 'failure'
+        if: inputs.result == 'rejected'
         uses: optivem/actions/promote-rc-to-qa-rejected@v1
         with:
           version: ${{ inputs.version }}
