@@ -74,6 +74,10 @@ jobs:
         java-version: 21
         working-directory: system-test
 
+    - name: Run Smoke Tests
+      run: ./gradlew test --tests com.optivem.greeter.systemtest.smoketests.*
+      working-directory: system-test
+
     - name: Run Acceptance Tests
       run: echo "Run Acceptance Tests"
 
