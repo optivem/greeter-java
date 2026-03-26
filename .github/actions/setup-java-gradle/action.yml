@@ -1,4 +1,4 @@
-name: Setup Java
+name: Setup Java Gradle
 description: Sets up Java with Gradle for building projects
 
 inputs:
