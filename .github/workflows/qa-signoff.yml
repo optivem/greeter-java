@@ -42,7 +42,7 @@ jobs:
       stage-result: ${{ steps.determine-result.outputs.stage-result }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Determine Stage Result
         id: determine-result
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Summarize Stage
       uses: optivem/actions/summarize-system-stage@v1

@@ -18,7 +18,7 @@ jobs:
       image-digest-urls: ${{ steps.find-latest.outputs.image-digest-urls }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -49,7 +49,7 @@ jobs:
       image-urls: ${{ steps.promote-to-rc.outputs.image-urls }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 

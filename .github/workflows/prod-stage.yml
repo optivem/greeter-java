@@ -47,7 +47,7 @@ jobs:
       image-urls: ${{ needs.check.outputs.image-urls }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Deploy System (Production Environment)
         id: deploy
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Summarize Stage
       uses: optivem/actions/summarize-system-stage@v1
