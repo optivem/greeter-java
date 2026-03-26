@@ -50,7 +50,7 @@ jobs:
 
       - name: Deploy System
         id: deploy
-        uses: ./.github/actions/simulate-deployment
+        uses: optivem/actions/simulate-deployment@v1
         with:
           environment: qa
           version: ${{ inputs.version }}
