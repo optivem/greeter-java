@@ -60,7 +60,7 @@ jobs:
 
       - name: Promote RC (QA Deployed)
         id: promote
-        uses: optivem/actions/promote-rc-to-qa-deployed@v1
+        uses: optivem/actions/promote-rc-to-qa@v1
         with:
           version: ${{ inputs.version }}
           artifact-urls: ${{ needs.check.outputs.image-urls }}

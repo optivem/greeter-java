@@ -57,7 +57,7 @@ jobs:
       - name: Promote RC (QA Approved)
         id: promote-approved
         if: inputs.result == 'approved'
-        uses: optivem/actions/promote-rc-to-qa-approved@v1
+        uses: optivem/actions/approve-rc-in-qa@v1
         with:
           version: ${{ inputs.version }}
         env:
@@ -66,7 +66,7 @@ jobs:
       - name: Promote RC (QA Rejected)
         id: promote-rejected
         if: inputs.result == 'rejected'
-        uses: optivem/actions/promote-rc-to-qa-rejected@v1
+        uses: optivem/actions/reject-rc-in-qa@v1
         with:
           version: ${{ inputs.version }}
         env:
