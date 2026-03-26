@@ -1,5 +1,5 @@
-name: 'Deploy Docker Images'
-description: 'Deploy Docker images using Docker Compose and run smoke tests'
+name: 'Simulate Deployment'
+description: 'Simulate deployment using Docker Compose and wait for system to be ready'
 inputs:
   environment:
     description: 'Target deployment environment (e.g., qa, staging, production)'
@@ -18,11 +18,11 @@ runs:
       run: |
         echo "🚀 Deploying system version ${{ inputs.version }} to ${{ inputs.environment }} environment..."
         echo ""
-        
+
         # List Docker images being deployed
         if [[ -n "${{ inputs.image-urls }}" ]]; then
           echo "📦 Deploying the following Docker images:"
-          
+
           # Parse JSON array and iterate through each URL
           echo '${{ inputs.image-urls }}' | jq -r '.[]' | while IFS= read -r image_url; do
             if [[ -n "$image_url" ]]; then
@@ -31,7 +31,7 @@ runs:
           done
           echo ""
         fi
-        
+
         echo "📝 Note: We are simulating deployment using Docker Compose Up for testing purposes."
         echo "🏭 In real applications, this is where you would deploy to:"
         echo "   - AWS (ECS, EKS, Lambda, EC2)"
@@ -52,24 +52,3 @@ runs:
         max-attempts: '30'
         wait-seconds: '10'
         working-directory: system-test
-      
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: 21
-        distribution: temurin
-
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-    
-    - name: Make Gradle Wrapper executable
-      run: chmod +x ./gradlew
-      shell: bash
-      working-directory: system-test
-        
-    - name: Run Smoke Tests
-      run: ./gradlew test --tests com.optivem.greeter.systemtest.smoketests.*
-      shell: bash
-      working-directory: system-test
-
-

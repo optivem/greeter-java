@@ -93,7 +93,7 @@ jobs:
 
       - name: Deploy System
         id: deploy
-        uses: ./.github/actions/deploy-docker-images
+        uses: ./.github/actions/simulate-deployment
         with:
           environment: production
           version: ${{ needs.generate-production-version.outputs.production-version }}
