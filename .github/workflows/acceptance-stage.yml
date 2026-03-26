@@ -10,11 +10,11 @@ concurrency:
 
 jobs:
 
-  find-latest-images:
+  check:
     runs-on: ubuntu-latest
     outputs:
-      image-digest-urls: ${{ steps.get-digest.outputs.image-digest-urls }}
-      latest-image-timestamp: ${{ steps.get-digest.outputs.latest-image-timestamp }}
+      should-run: ${{ steps.should-run.outputs.should-run }}
+      image-digest-urls: ${{ steps.find-latest.outputs.image-digest-urls }}
 
     permissions:
       contents: read
@@ -22,84 +22,27 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    - name: Resolve Latest Docker Digests
-      id: get-digest
+    - name: Find Latest Docker Images
+      id: find-latest
       uses: optivem/actions/find-latest-docker-images@v1
       with:
         image-urls: |
           ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith:latest
 
-  should-run:
-    needs: find-latest-images
-    if: needs.find-latest-images.result == 'success'
-    runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.check.outputs.should-run }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Should Run Acceptance Stage
-        id: check
-        uses: optivem/actions/should-run-acceptance-stage@v1
-        with:
-          latest-image-timestamp: ${{ needs.find-latest-images.outputs.latest-image-timestamp }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
-
-
-  system-test:
-    needs: [should-run, find-latest-images]
-    if: needs.should-run.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    - name: Deploy System
-      id: deploy-system
-      uses: optivem/actions/simulate-deployment@v1
+    - name: Should Run Acceptance Stage
+      id: should-run
+      uses: optivem/actions/should-run-acceptance-stage@v1
       with:
-        environment: acceptance
-        version: latest
-        image-urls: ${{ needs.find-latest-images.outputs.image-digest-urls }}
-        system-url: 'http://localhost:8080/'
-        working-directory: system-test
+        latest-image-timestamp: ${{ steps.find-latest.outputs.latest-image-timestamp }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: 21
-        distribution: temurin
-
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-    
-    - name: Make Gradle Wrapper executable
-      run: chmod +x ./gradlew
-      working-directory: system-test
-
-    - name: Run Acceptance Tests
-      run: echo "Run Acceptance Tests"
-
-    - name: Run External System Contract Tests
-      run: echo "Run External System Contract Tests"
-
-    - name: Run E2E Tests
-      run: ./gradlew test --tests com.optivem.greeter.systemtest.e2etests.*
-      working-directory: system-test
-  
-  prerelease:
-    needs: [find-latest-images, should-run, system-test]
-    if: needs.system-test.result == 'success'
+  run:
+    needs: check
+    if: needs.check.outputs.should-run == 'true'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.generate-version.outputs.version }}
@@ -113,7 +56,33 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Fetch all history and tags
+        fetch-depth: 0
+
+    - name: Deploy System
+      id: deploy-system
+      uses: optivem/actions/simulate-deployment@v1
+      with:
+        environment: acceptance
+        version: latest
+        image-urls: ${{ needs.check.outputs.image-digest-urls }}
+        system-url: 'http://localhost:8080/'
+        working-directory: system-test
+
+    - name: Setup Java Gradle
+      uses: optivem/actions/setup-java-gradle@v1
+      with:
+        java-version: 21
+        working-directory: system-test
+
+    - name: Run Acceptance Tests
+      run: echo "Run Acceptance Tests"
+
+    - name: Run External System Contract Tests
+      run: echo "Run External System Contract Tests"
+
+    - name: Run E2E Tests
+      run: ./gradlew test --tests com.optivem.greeter.systemtest.e2etests.*
+      working-directory: system-test
 
     - name: Generate Prerelease Version
       id: generate-version
@@ -123,7 +92,7 @@ jobs:
       id: tag-images
       uses: optivem/actions/tag-docker-images@v1
       with:
-        image-urls: ${{ needs.find-latest-images.outputs.image-digest-urls }}
+        image-urls: ${{ needs.check.outputs.image-digest-urls }}
         tag: ${{ steps.generate-version.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -142,19 +111,19 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   summary:
-    needs: [find-latest-images, should-run, prerelease, system-test]
-    if: always()  # Run even if previous jobs fail
+    needs: [check, run]
+    if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-      
+
     - name: Acceptance Stage Summary
       uses: optivem/actions/summarize-system-stage@v1
       with:
         stage-name: 'Acceptance Stage'
         environment: acceptance
-        stage-result: ${{ needs.prerelease.result }}
-        success-version: ${{ needs.prerelease.outputs.version }}
-        success-artifact-ids: ${{ needs.prerelease.outputs.image-urls }}
+        stage-result: ${{ needs.run.result }}
+        success-version: ${{ needs.run.outputs.version }}
+        success-artifact-ids: ${{ needs.run.outputs.image-urls }}
