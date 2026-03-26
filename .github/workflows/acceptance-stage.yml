@@ -83,10 +83,16 @@ jobs:
         run: ./gradlew test --tests com.optivem.greeter.systemtest.e2etests.*
         working-directory: system-test
 
+      - name: Read VERSION
+        id: read-version
+        shell: bash
+        run: echo "target-version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+
       - name: Promote to RC
         id: promote-to-rc
         uses: optivem/actions/promote-to-rc@v1
         with:
+          target-version: ${{ steps.read-version.outputs.target-version }}
           image-urls: ${{ needs.check.outputs.image-digest-urls }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
