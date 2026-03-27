@@ -57,6 +57,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Deploy System (Production Environment)
         id: deploy
         uses: optivem/actions/simulate-deployment@v1
@@ -83,6 +89,12 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v5
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Summarize Stage
       uses: optivem/actions/summarize-system-stage@v1
