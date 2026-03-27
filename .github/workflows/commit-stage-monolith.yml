@@ -17,7 +17,23 @@ concurrency:
   group: commit-stage-monolith-${{ github.ref }}
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Validate Config
+        uses: optivem/actions/validate-config@v1
+        with:
+          names: |
+            DOCKERHUB_USERNAME
+            DOCKERHUB_TOKEN
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
   run:
+    needs: check
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -93,7 +109,7 @@ jobs:
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   summary:
-    needs: [run]
+    needs: [check, run]
     if: always()
     runs-on: ubuntu-latest
     steps:
