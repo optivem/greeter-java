@@ -21,13 +21,15 @@ jobs:
     steps:
       - name: Validate Config
         uses: optivem/actions/validate-config@v1
+        with:
+          names: |
+            DOCKERHUB_USERNAME
+            DOCKERHUB_TOKEN
+            SYSTEM_URL
         env:
-          VALIDATE_CONFIG: |-
-            {
-              "DOCKERHUB_USERNAME": "${{ vars.DOCKERHUB_USERNAME }}",
-              "DOCKERHUB_TOKEN": "${{ secrets.DOCKERHUB_TOKEN }}",
-              "SYSTEM_URL": "${{ vars.SYSTEM_URL }}"
-            }
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          SYSTEM_URL: ${{ vars.SYSTEM_URL }}
 
       - name: Check RC Exists
         id: check-release
