@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Prerelease version to deploy (e.g., v1.0.4-rc)'
+        description: 'Prerelease version to deploy (e.g., v1.0.0-rc.1)'
         required: true
         type: string
 
@@ -27,6 +27,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check QA Approved
+        uses: optivem/actions/check-release-exists@v1
+        with:
+          version: ${{ inputs.version }}-qa-approved
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Resolve Artifacts
         id: resolve-images
         uses: optivem/actions/resolve-docker-images@v1
@@ -39,6 +46,7 @@ jobs:
     needs: check
     if: needs.check.result == 'success'
     runs-on: ubuntu-latest
+    environment: production
     permissions:
       contents: write
       packages: write
@@ -56,7 +64,7 @@ jobs:
           environment: production
           version: ${{ inputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
-          system-url: 'http://localhost:8080/'
+          system-url: ${{ vars.SYSTEM_URL }}
           working-directory: system-test
 
       - name: Promote RC (Production Deployed)

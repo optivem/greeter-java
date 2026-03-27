@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version that was tested in QA (e.g., v1.0.4-rc)'
+        description: 'Version that was tested in QA (e.g., v1.0.0-rc.1)'
         required: true
         type: string
       result:

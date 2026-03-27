@@ -56,6 +56,11 @@ jobs:
       - name: Run Code Analysis
         run: echo "Run Code Analysis"
 
+      - name: Read Target Version
+        if: github.ref == 'refs/heads/main'
+        id: read-version
+        uses: optivem/actions/read-target-version@v1
+
       - name: Build Artifact
         if: github.ref == 'refs/heads/main'
         id: build
@@ -66,6 +71,8 @@ jobs:
           image-namespace: ${{ github.repository }}
           commit-sha: ${{ github.sha }}
           dockerfile: Dockerfile
+          component-version: ${{ steps.read-version.outputs.target-version }}
+          build-number: ${{ github.run_number }}
 
       - name: Push Artifact
         if: github.ref == 'refs/heads/main'
@@ -74,6 +81,7 @@ jobs:
         with:
           image-sha-tag: ${{ steps.build.outputs.image-sha-tag }}
           image-latest-url: ${{ steps.build.outputs.image-latest-url }}
+          image-version-tag: ${{ steps.build.outputs.image-version-tag }}
           registry-username: ${{ github.actor }}
         env:
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
