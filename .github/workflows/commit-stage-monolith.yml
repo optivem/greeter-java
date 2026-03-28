@@ -60,23 +60,29 @@ jobs:
         run: ./gradlew build
         working-directory: monolith
 
+      # TODO: Implement
       - name: Run Unit Tests
-        run: echo "Run Unit Tests"
+        run: echo "TODO - not yet implemented"
 
+      # TODO: Implement
       - name: Run Narrow Integration Tests
-        run: echo "Run Narrow Integration Tests"
+        run: echo "TODO - not yet implemented"
 
+      # TODO: Implement
       - name: Run Component Tests
-        run: echo "Run Component Tests"
+        run: echo "TODO - not yet implemented"
 
+      # TODO: Implement
       - name: Run Contract Tests
-        run: echo "Run Contract Tests"
+        run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: echo "Run Linter"
+        run: ./gradlew checkstyleMain
+        working-directory: monolith
 
+      # TODO: Implement
       - name: Run Code Analysis
-        run: echo "Run Code Analysis"
+        run: echo "TODO - not yet implemented"
 
       - name: Read Target Version
         if: github.ref == 'refs/heads/main'
