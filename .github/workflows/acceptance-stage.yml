@@ -2,7 +2,7 @@ name: acceptance-stage
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # Run every 30 minutes
+    - cron: '0 * * * *'  # Run every hour
   workflow_dispatch:
 
 concurrency:
