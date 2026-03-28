@@ -9,7 +9,20 @@ concurrency:
   group: acceptance-stage
 
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    outputs:
+      artifacts-exist: ${{ steps.check-artifacts.outputs.exist }}
+    steps:
+      - name: Check Artifacts Exist
+        id: check-artifacts
+        uses: optivem/actions/check-artifacts-exist@v1
+
   check:
+    needs: preflight
+    if: needs.preflight.outputs.artifacts-exist == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
