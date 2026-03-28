@@ -50,6 +50,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
       image-digest-url: ${{ steps.push.outputs.image-digest-url }}
     steps:
@@ -87,11 +89,9 @@ jobs:
         working-directory: monolith
 
       - name: Run Code Analysis
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
         run: ./gradlew build sonar --info
         working-directory: monolith
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Read Target Version
         if: github.ref == 'refs/heads/main'
