@@ -80,14 +80,12 @@ jobs:
         run: ./gradlew checkstyleMain
         working-directory: monolith
 
-      # TODO: Re-enable SonarQube analysis once the SONAR_TOKEN and SONAR_HOST_URL are configured
-      # - name: Run Code Analysis
-      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      #   run: ./gradlew test jacocoTestReport sonar
-      #   working-directory: monolith
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #     SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+      - name: Run Code Analysis
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: ./gradlew build sonar --info
+        working-directory: monolith
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Read Target Version
         if: github.ref == 'refs/heads/main'
