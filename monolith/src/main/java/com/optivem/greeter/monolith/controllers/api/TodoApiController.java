@@ -38,14 +38,14 @@ public class TodoApiController {
 
     @GetMapping("/todos/{id}")
     public Todo getTodo(@PathVariable("id") int id) {
-        String url = todosApiHost + "/todos/" + id;
-        
+        String url = todosApiHost + "/todos/{id}";
+
         int maxRetries = 3;
         int retryDelayMs = 1000;
-        
+
         for (int attempt = 0; attempt < maxRetries; attempt++) {
             try {
-                Todo todo = restTemplate.getForObject(url, Todo.class);
+                Todo todo = restTemplate.getForObject(url, Todo.class, id);
                 if (todo == null) {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found");
                 }
